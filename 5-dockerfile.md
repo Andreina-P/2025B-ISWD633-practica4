@@ -53,17 +53,25 @@ docker build -t <nombre imagen>:<tag> .
 ### Ejecutar el archivo Dockerfile y construir una imagen en la versión 1.0
 No olvides verificar en qué directorio se encuentra el archivo Dockerfile
 ```
-
+readlink -f Dockerfile
 ```
 
 **¿Cuántos pasos se han ejecutado?**
 # RESPONDER 
+Docker genera 4 capas de filesystem visibles en el build, pero el Dockerfile tiene 6 instrucciones lógicas, incluyendo las de configuración (EXPOSE y CMD).
+<img width="997" height="413" alt="image" src="https://github.com/user-attachments/assets/d157b745-8f9c-44d0-bd77-17d611be8ff5" /> <img width="1220" height="491" alt="image" src="https://github.com/user-attachments/assets/53a45c73-ddb2-40c8-afe8-633deae22a09" />
+
 
 ### Inspeccionar la imagen creada
 # COMPLETAR CON UNA CAPTURA
+<img width="1878" height="963" alt="image" src="https://github.com/user-attachments/assets/7b4b7232-95dc-46a8-b8a8-9a02c4f5b68a" />
+
 
 **Modificar el archivo index.html para incluir su nombre y luego crear una nueva versión de la imagen anterior**
 **¿Cuántos pasos se han ejecutado? ¿Observa algo diferente en la creación de la imagen**
+Se han ejecutado 6 pasos (las mismas 6 instrucciones del Dockerfile: FROM, RUN update, RUN httpd, COPY, EXPOSE, CMD).
+<img width="1476" height="159" alt="image" src="https://github.com/user-attachments/assets/6e8260b1-bd02-4e48-964b-6565f597ca33" />
+Lo diferente dentro de la creación de esta imagen es que el build reutiliza caché para el paso 2 y 3 previo a COPY; solo se reconstruyen COPY y las instrucciones posteriores, por eso es más rápido y cambia mínimamente el tamaño.
 
 ## Mecanismo de caché
 Docker usa un mecanismo de caché cuando crea imágenes para acelerar el proceso de construcción y evitar la repetición de pasos que no han cambiado. Cada instrucción en un Dockerfile crea una capa en la imagen final. Docker intenta reutilizar las capas de una construcción anterior si no han cambiado, lo que reduce significativamente el tiempo de construcción.
@@ -75,14 +83,19 @@ Docker usa un mecanismo de caché cuando crea imágenes para acelerar el proceso
 
 ### Crear un contenedor a partir de las imagen creada, mapear todos los puertos
 ```
-
+docker run -d --name apache-mapeado -P centos-apache:1.1
 ```
 
 ### ¿Con que puerto host se está realizando el mapeo?
 # COMPLETAR CON LA RESPUESTA
+El contenedor expone el puerto 80, y Docker lo mapea automáticamente a un puerto aleatorio del host (en este caso, 32768  0.0.0.0:32768->80/tcp ).
+Este valor puede variar cada vez que se ejecuta el contenedor.
 
 **¿Qué es una imagen huérfana?**
 # COMPLETAR CON LA RESPUESTA
+Una **imagen huérfana** en Docker es aquella que ya **no tiene etiquetas (tags) asociadas**, generalmente porque la imagen fue reemplazada o la etiqueta fue eliminada.
+Aunque sigue ocupando espacio en el sistema, **no está vinculada a ningún contenedor ni nombre identificable**.
+Se puede eliminar con `docker image prune` o `docker rmi <id>`.
 
 ### Identificar imágenes huérfanas
 ```
